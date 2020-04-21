@@ -1,0 +1,59 @@
+version: "3.7"
+
+services:
+
+    reverse-proxy:
+        image: traefik:v2.2
+        container_name: dtnp_traefik
+        command:
+            # - "--log.level=DEBUG"
+            - "--api.insecure=true" # Enables the web UI
+            - "--providers.docker=true" # Tells Traefik to listen to docker
+            - "--providers.docker.exposedbydefault=false"
+            - "--entrypoints.web.address=:80"
+        restart: always
+        ports:
+            - "80:80" # The HTTP port
+            - "8080:8080" # The Web UI (enabled by --api.insecure=true)
+        volumes: # So that Traefik can listen to the Docker events
+            - /var/run/docker.sock:/var/run/docker.sock
+            # - /srv/traefik/traefik.toml:/etc/traefik/traefik.toml
+        networks:
+            - dtnp
+    
+    dtnp_app:
+        build:
+            context: ./app
+            dockerfile: Dockerfile
+        container_name: dtnp_app
+        environment: 
+            - PGUSER=postgres
+            - PGHOST=postgres
+            - PGDATABASE=postgres
+            - PGPASSWORD=postgres_password
+            - PGPORT=5432
+        volumes:
+            - /app/node_modules
+            - ./server:/app
+        labels:
+            - "traefik.http.routers.dtnp_app.rule=Host(`dtnp.localhost`)"
+            - "traefik.http.routers.dtnp_app.entrypoints=web"
+            - "traefik.enable=true"    
+        networks:
+            - dtnp
+
+    postgres:
+        image: 'postgres:12.2'
+        container_name: dtnp_postgres
+        restart: always
+        environment:
+            - POSTGRES_PASSWORD=postgres_password
+        volumes:
+            - ./postgres:/var/lib/mysql
+        labels:
+            - "traefik.enable=false"
+        networks:
+            - dtnp
+
+networks:
+    dtnp:
