@@ -1,18 +1,17 @@
-
-
 {
-  "name": "assignment-dockerfile",
+  "name": "app",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Bret Fisher",
-  "license": "MIT",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "@hapi/hapi": "^18.1.0",
-    "hapi-pino": "^5.4.1"
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "pg": "^8.0.2"
   }
 }
